@@ -1,0 +1,56 @@
+.appBar {
+    display: flex;
+    width: 90%;
+    margin: auto;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 5vh;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .leftIcons {
+    cursor: pointer;
+  }
+  
+  .titleStyles {
+    text-align: center;
+    text-transform: uppercase;
+    padding-left: 100px;
+  }
+  
+  .profileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+  }
+  
+  .profileDetails {
+    text-align: center;
+  }
+  
+  .name {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #000;
+  }
+  
+  .email {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #888;
+  }
+  
+  .bio {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
