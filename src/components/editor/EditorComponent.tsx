@@ -2,9 +2,9 @@ import React, { useMemo, useCallback, FC } from 'react';
 import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps } from 'slate-react';
 import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
-import { withCustomPlugin } from './withCustomPlugin';
+import { withCustomPlugin } from './plugins/withCustomPlugin';
 import Toolbar from './Toolbar';
-import { CustomElement, CustomText } from '@/types/custom-type';
+import { CustomElement, CustomText } from '@/components/editor/types/type';
 
 interface EditorComponentProps {
   initialValue: Descendant[];

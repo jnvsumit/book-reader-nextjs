@@ -7,10 +7,10 @@ import {
   AiOutlineLink,
   AiOutlineVideoCamera
 } from 'react-icons/ai';
-import { toggleFormat, toggleAlignment, toggleList, insertLink, insertImage, insertVideo } from './utils';
-import { Button, Icon } from './components';
-import { Label } from './Label';
-import { TextFormat } from '../types/custom-type';
+import { toggleFormat, toggleAlignment, toggleList, insertLink, insertImage, insertVideo } from './utils/utils';
+import { Button, Icon } from '../components';
+import { Label } from '../Label';
+import { TextFormat } from './types/type';
 import axios from 'axios';
 
 const Toolbar: React.FC = () => {
