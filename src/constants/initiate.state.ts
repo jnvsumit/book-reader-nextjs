@@ -1,11 +1,4 @@
-export interface IBook {
-    bookId: string;
-    title: string;
-    author: string;
-    image: string;
-    description: string;
-    content: string;
-}
+import { IBook } from "@/interfaces/book";
 
 export const INITIAL_BOOK_STATE: IBook = {
     bookId: '',

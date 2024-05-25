@@ -6,8 +6,10 @@ import { useState } from "react"
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import styles from './page.module.css'
-import { IBook, INITIAL_BOOK_STATE } from '@/constants/initiate.state'
-import axios from 'axios'
+import { INITIAL_BOOK_STATE } from '@/constants/initiate.state'
+import { IBook } from '@/interfaces/book'
+import { saveBook } from '@/apis/book'
+import { message } from '@/constants/toast.message'
 
 export default function AddBookPage() {
   const router = useRouter();
@@ -19,15 +21,16 @@ export default function AddBookPage() {
   };
 
   const handleSave = async () => {
-    try {
-      const response = await axios.post('http://localhost:5001/api/books', bookDetails);
-      toast.success("Book added successfully! Redirecting in 5 seconds...", {
-        autoClose: 5000,
-        onClose: () => router.push(`/book/${response.data.bookId}?from=add-book`)
-      });
-    } catch (error) {
-      toast.error("Failed to add the book.");
-    }
+      const response = await saveBook(bookDetails);
+
+      if (response.success) {
+        toast.success(message.book.added.success, {
+          autoClose: 5000,
+          onClose: () => router.push(`/book/${response.data.bookId}?from=add-book`)
+        });
+      } else {
+        toast.error(message.book.added.failed);
+      }
   };
 
   const handleBack = () => {

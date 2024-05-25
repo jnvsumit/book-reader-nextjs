@@ -7,9 +7,11 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import EditorComponent from '@/components/editor/EditorComponent'
 import styles from './page.module.css'
-import { IBook, INITIAL_BOOK_STATE } from '@/constants/initiate.state'
-import axios from 'axios'
+import { INITIAL_BOOK_STATE } from '@/constants/initiate.state'
 import { Descendant } from 'slate';
+import { IBook } from '@/interfaces/book'
+import { getBookByBookId, updateBookByBookId } from '@/apis/book'
+import { message } from '@/constants/toast.message'
 
 const INITIAL_EDITOR_STATE: Descendant[] = [
   {
@@ -27,31 +29,31 @@ const BookPage: React.FC = () => {
 
   useEffect(() => {
     if (bookId) {
-      axios.get(`http://localhost:5001/api/books/${bookId}`)
-        .then(response => {
+      getBookByBookId(bookId).then(response => {
+        if (response.success) {
           setSelectedBook(response.data);
           setEditorValue(response.data.content ? JSON.parse(response.data.content) : INITIAL_EDITOR_STATE);
-        })
-        .catch(error => {
+        } else {
+          console.error('Error fetching book');
+        }
+      })
+      .catch(error => {
           console.error('Error fetching book:', error);
-        });
+      });
     }
   }, [bookId]);
 
   const handleSave = async () => {
-    console.log(JSON.stringify(editorValue));
-    
     const content = JSON.stringify(editorValue);
-    try {
-      const response = await axios.put(`http://localhost:5001/api/books/${bookId}`, {
-        content
-      });
-      toast.success("Book updated successfully!", {
-        autoClose: 5000
-      });
-    } catch (error) {
-      toast.error("Failed to add the book.");
-    }
+      const response = await updateBookByBookId(bookId, { content });
+
+      if (response.success) {
+        toast.success(message.book.updated.success, {
+          autoClose: 5000
+        });
+      } else {
+        toast.error(message.book.updated.failed);
+      }
   }
 
   const onChange = (value: Descendant[]) => {
