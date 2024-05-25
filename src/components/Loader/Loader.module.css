@@ -1,0 +1,26 @@
+.loaderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height */
+    width: 100%;
+  }
+  
+  .loader {
+    /* Styles for different viewport sizes */
+  }
+  
+  @media (max-width: 768px) {
+    .loader {
+      width: 60px;
+      height: 60px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .loader {
+      width: 40px;
+      height: 40px;
+    }
+  }
+  

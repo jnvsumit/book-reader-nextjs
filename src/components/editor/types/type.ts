@@ -11,9 +11,17 @@ export type CustomElement =
   | { type: 'ordered-list'; children: CustomText[] }
   | { type: 'unordered-list'; children: CustomText[] };
 
-export type CustomText = { text: string; bold?: boolean; italic?: boolean; underline?: boolean; };
+export type CustomText = { 
+  text: string; 
+  bold?: boolean; 
+  italic?: boolean; 
+  underline?: boolean;
+  color?: string;
+  backgroundColor?: string;
+  fontSize?: string;
+};
 
-export type TextFormat = 'bold' | 'italic' | 'underline';
+export type TextFormat = 'bold' | 'italic' | 'underline' | 'color' | 'backgroundColor' | 'fontSize';
 
 declare module 'slate' {
   interface CustomTypes {

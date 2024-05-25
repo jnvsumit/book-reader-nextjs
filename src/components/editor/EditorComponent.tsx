@@ -5,6 +5,7 @@ import { withHistory } from 'slate-history';
 import { withCustomPlugin } from './plugins/withCustomPlugin';
 import Toolbar from './Toolbar';
 import { CustomElement, CustomText } from '@/components/editor/types/type';
+import { indentList, outdentList } from './utils/utils';
 
 interface EditorComponentProps {
   initialValue: Descendant[];
@@ -23,6 +24,12 @@ const EditorComponent: FC<EditorComponentProps> = ({ initialValue, onChange }) =
         return <VideoElement {...props} />;
       case 'link':
         return <LinkElement {...props} />;
+      case 'ordered-list':
+        return <OrderedListElement {...props} />;
+      case 'unordered-list':
+        return <UnorderedListElement {...props} />;
+      case 'list-item':
+        return <ListItemElement {...props} />;
       default:
         return <DefaultElement {...props} />;
     }
@@ -35,12 +42,24 @@ const EditorComponent: FC<EditorComponentProps> = ({ initialValue, onChange }) =
   return (
     <Slate editor={editor} initialValue={initialValue} onChange={onChange}>
       <Toolbar />
-      <Editable renderElement={renderElement} renderLeaf={renderLeaf} placeholder="Enter some text..." />
+      <Editable
+        renderElement={renderElement}
+        renderLeaf={renderLeaf}
+        placeholder="Enter some text..."
+        onKeyDown={(event) => handleKeyDown(event, editor)}
+      />
     </Slate>
   );
 };
 
-const DefaultElement: FC<RenderElementProps> = props => <p {...props.attributes}>{props.children}</p>;
+const DefaultElement: FC<RenderElementProps> = ({ attributes, children, element }) => {
+  const style = { textAlign: element.align as 'left' | 'center' | 'right' };
+  return (
+    <div {...attributes} style={style}>
+      {children}
+    </div>
+  );
+};
 
 const ImageElement: FC<RenderElementProps> = ({ attributes, children, element }) => {
   const elementWithUrl = element as { url: string };
@@ -78,7 +97,21 @@ const LinkElement: FC<RenderElementProps> = ({ attributes, children, element }) 
   );
 };
 
+const OrderedListElement: FC<RenderElementProps> = (props) => (
+  <ol {...props.attributes}>{props.children}</ol>
+);
+
+const UnorderedListElement: FC<RenderElementProps> = (props) => (
+  <ul {...props.attributes}>{props.children}</ul>
+);
+
+const ListItemElement: FC<RenderElementProps> = (props) => (
+  <li {...props.attributes}>{props.children}</li>
+);
+
 const Leaf: FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
+  let style: React.CSSProperties = {};
+
   if (leaf.bold) {
     children = <strong>{children}</strong>;
   }
@@ -88,8 +121,28 @@ const Leaf: FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   if (leaf.underline) {
     children = <u>{children}</u>;
   }
+  if (leaf.color) {
+    style.color = leaf.color;
+  }
+  if (leaf.backgroundColor) {
+    style.backgroundColor = leaf.backgroundColor;
+  }
+  if (leaf.fontSize) {
+    style.fontSize = leaf.fontSize;
+  }
 
-  return <span {...attributes}>{children}</span>;
+  return <span {...attributes} style={style}>{children}</span>;
 };
 
 export default EditorComponent;
+
+const handleKeyDown = (event: React.KeyboardEvent, editor: any) => {
+  if (event.key === 'Tab') {
+    event.preventDefault();
+    if (event.shiftKey) {
+      outdentList(editor);
+    } else {
+      indentList(editor);
+    }
+  }
+};

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/css": "^11.11.2",
     "@fortawesome/fontawesome-free": "^6.5.1",
     "axios": "^1.7.1",
     "framer-motion": "^11.0.8",
@@ -16,6 +17,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.2.1",
+    "react-loader-spinner": "^6.1.6",
     "react-toastify": "^10.0.4",
     "reactjs-editor": "^10.0.1",
     "slate": "^0.103.0",

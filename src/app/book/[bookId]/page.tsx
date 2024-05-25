@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import EditorComponent from '@/components/editor/EditorComponent'
+import Loader from '@/components/Loader/Loader'
 import styles from './page.module.css'
 import { INITIAL_BOOK_STATE } from '@/constants/initiate.state'
 import { Descendant } from 'slate';
@@ -26,6 +27,7 @@ const BookPage: React.FC = () => {
   const { bookId } = useParams() as { bookId: string };
   const [editorValue, setEditorValue] = useState<Descendant[]>(INITIAL_EDITOR_STATE);
   const [selectedBook, setSelectedBook] = useState<IBook>(INITIAL_BOOK_STATE);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (bookId) {
@@ -36,29 +38,29 @@ const BookPage: React.FC = () => {
         } else {
           console.error('Error fetching book');
         }
+        setLoading(false);
       })
       .catch(error => {
           console.error('Error fetching book:', error);
+          setLoading(false);
       });
     }
   }, [bookId]);
 
   const handleSave = async () => {
     const content = JSON.stringify(editorValue);
-      const response = await updateBookByBookId(bookId, { content });
+    const response = await updateBookByBookId(bookId, { content });
 
-      if (response.success) {
-        toast.success(message.book.updated.success, {
-          autoClose: 5000
-        });
-      } else {
-        toast.error(message.book.updated.failed);
-      }
+    if (response.success) {
+      toast.success(message.book.updated.success, {
+        autoClose: 5000
+      });
+    } else {
+      toast.error(message.book.updated.failed);
+    }
   }
 
   const onChange = (value: Descendant[]) => {
-    console.log(value);
-    
     setEditorValue(value)
   }
 
@@ -68,6 +70,10 @@ const BookPage: React.FC = () => {
     } else {
       router.back();
     }
+  }
+
+  if (loading) {
+    return <Loader />;
   }
 
   if (!selectedBook.bookId) return <p>Book not found</p>;

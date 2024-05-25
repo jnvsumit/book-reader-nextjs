@@ -1,14 +1,22 @@
 import { config } from '@/constants/server.config';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { IApiRequest, IApiResponse, IApiResponseError } from '@/interfaces/api';
 
 const fetch = async ({ method, path, data }: IApiRequest): Promise<IApiResponse> => {
     try {
-        const response = await axios({
+        const axiosConfig: AxiosRequestConfig<any> = {
             method,
             url: config.SERVER_BASE_URL + path,
             data
-        });
+        };
+
+        if (data instanceof FormData) {
+            axiosConfig['headers'] = {
+                'Content-Type': 'multipart/form-data',
+            }
+        }
+
+        const response = await axios(axiosConfig);
 
         if (response.data.error) {
             const e: IApiResponseError = {
