@@ -1,5 +1,4 @@
 import axios from '@/configs/axios.config';
-import { config } from '@/constants/server.config';
 import { IApiResponse } from '@/interfaces/api';
 import { IBook, IBookUpdateRequest } from '@/interfaces/book';
 
