@@ -2,6 +2,7 @@ import React, { useMemo, useCallback, FC } from 'react';
 import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps } from 'slate-react';
 import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
+import { withCustomPlugin } from './withCustomPlugin';
 import Toolbar from './Toolbar';
 import { CustomElement, CustomText } from '@/types/custom-type';
 
@@ -11,20 +12,17 @@ interface EditorComponentProps {
 }
 
 const EditorComponent: FC<EditorComponentProps> = ({ initialValue, onChange }) => {
-  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+  const editor = useMemo(() => withCustomPlugin(withHistory(withReact(createEditor()))), []);
 
   const renderElement = useCallback((props: RenderElementProps) => {
     const element = props.element as CustomElement;
     switch (element.type) {
       case 'image':
         return <ImageElement {...props} />;
+      case 'video':
+        return <VideoElement {...props} />;
       case 'link':
         return <LinkElement {...props} />;
-      case 'ordered-list':
-      case 'unordered-list':
-        return <ListElement {...props} />;
-      case 'list-item':
-        return <ListItemElement {...props} />;
       default:
         return <DefaultElement {...props} />;
     }
@@ -56,28 +54,27 @@ const ImageElement: FC<RenderElementProps> = ({ attributes, children, element })
   );
 };
 
+const VideoElement: FC<RenderElementProps> = ({ attributes, children, element }) => {
+  const elementWithUrl = element as { url: string };
+  return (
+    <div {...attributes}>
+      <div contentEditable={false}>
+        <video controls style={{ maxWidth: '100%' }}>
+          <source src={elementWithUrl.url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      {children}
+    </div>
+  );
+};
+
 const LinkElement: FC<RenderElementProps> = ({ attributes, children, element }) => {
   const elementWithUrl = element as { url: string };
   return (
     <a {...attributes} href={elementWithUrl.url}>
       {children}
     </a>
-  );
-};
-
-const ListElement: FC<RenderElementProps> = props => {
-  return (
-    <ul {...props.attributes}>
-      {props.children}
-    </ul>
-  );
-};
-
-const ListItemElement: FC<RenderElementProps> = props => {
-  return (
-    <li {...props.attributes}>
-      {props.children}
-    </li>
   );
 };
 

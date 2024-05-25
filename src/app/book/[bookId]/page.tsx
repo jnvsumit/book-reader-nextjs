@@ -38,12 +38,26 @@ const BookPage: React.FC = () => {
     }
   }, [bookId]);
 
-  const notify = () => toast("Your changes have been saved!");
-
-  const handleSave = () => {
+  const handleSave = async () => {
+    console.log(JSON.stringify(editorValue));
+    
     const content = JSON.stringify(editorValue);
-    localStorage.setItem(`dom${selectedBook.bookId}`, content);
-    notify();
+    try {
+      const response = await axios.put(`http://localhost:5001/api/books/${bookId}`, {
+        content
+      });
+      toast.success("Book updated successfully!", {
+        autoClose: 5000
+      });
+    } catch (error) {
+      toast.error("Failed to add the book.");
+    }
+  }
+
+  const onChange = (value: Descendant[]) => {
+    console.log(value);
+    
+    setEditorValue(value)
   }
 
   const handleBack = () => {
@@ -75,7 +89,7 @@ const BookPage: React.FC = () => {
         </div>
       </motion.section>
 
-      <EditorComponent initialValue={editorValue} onChange={value => setEditorValue(value)} />
+      <EditorComponent initialValue={editorValue} onChange={onChange} />
       <ToastContainer />
     </motion.div>
   )

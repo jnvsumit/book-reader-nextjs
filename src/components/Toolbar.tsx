@@ -4,31 +4,59 @@ import {
   AiOutlinePicture, AiOutlineBold, AiOutlineItalic,
   AiOutlineUnderline, AiOutlineAlignLeft, AiOutlineAlignCenter,
   AiOutlineAlignRight, AiOutlineOrderedList, AiOutlineUnorderedList,
-  AiOutlineLink
+  AiOutlineLink,
+  AiOutlineVideoCamera
 } from 'react-icons/ai';
-import { insertImage, toggleFormat, toggleAlignment, toggleList, insertLink } from './utils';
+import { toggleFormat, toggleAlignment, toggleList, insertLink, insertImage, insertVideo } from './utils';
 import { Button, Icon } from './components';
 import { Label } from './Label';
 import { TextFormat } from '../types/custom-type';
+import axios from 'axios';
 
 const Toolbar: React.FC = () => {
   const editor = useSlate();
 
-  const handleImageClick = () => {
-    const url = window.prompt('Enter the URL of the image:');
-    if (!url) return;
-    insertImage(editor, url);
-  };
-
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const url = reader.result as string;
-        insertImage(editor, url);
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        console.log('Uploading image file...');
+        const response = await axios.post('http://localhost:5001/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const url = response.data.url;
+        console.log('Image uploaded successfully:', url);
+        insertImage(editor, `http://localhost:5001${url}`);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    }
+  };
+
+  const handleVideoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        console.log('Uploading video file...');
+        const response = await axios.post('http://localhost:5001/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const url = response.data.url;
+        console.log('Video uploaded successfully:', url);
+        insertVideo(editor, `http://localhost:5001${url}`);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
     }
   };
 
@@ -52,9 +80,26 @@ const Toolbar: React.FC = () => {
 
   return (
     <div>
-      <Button onMouseDown={handleImageClick}>
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        id="image-upload"
+        onChange={handleImageUpload}
+      />
+      <Label htmlFor="image-upload">
         <Icon><AiOutlinePicture /></Icon>
-      </Button>
+      </Label>
+      <input
+        type="file"
+        accept="video/*"
+        style={{ display: 'none' }}
+        id="video-upload"
+        onChange={handleVideoUpload}
+      />
+      <Label htmlFor="video-upload">
+        <Icon><AiOutlineVideoCamera /></Icon>
+      </Label>
       <Button onMouseDown={() => handleFormatClick('bold')}>
         <Icon><AiOutlineBold /></Icon>
       </Button>
@@ -82,16 +127,6 @@ const Toolbar: React.FC = () => {
       <Button onMouseDown={handleLinkClick}>
         <Icon><AiOutlineLink /></Icon>
       </Button>
-      <input
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        id="file-upload"
-        onChange={handleImageUpload}
-      />
-      <Label htmlFor="file-upload">
-        <Icon><AiOutlinePicture /></Icon> Upload
-      </Label>
     </div>
   );
 };

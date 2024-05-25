@@ -10,16 +10,16 @@ export const toggleFormat = (editor: Editor, format: TextFormat) => {
       { [format]: isActive ? null : true } as Partial<Text>,
       { match: n => Text.isText(n), split: true }
     );
-  };
+};
   
-  const isFormatActive = (editor: Editor, format: TextFormat) => {
+const isFormatActive = (editor: Editor, format: TextFormat) => {
     const [match] = Editor.nodes(editor, {
       match: n => Text.isText(n) && (n as Text)[format] === true,
       universal: true,
     });
     console.log(`Format active check for ${format}: ${!!match}`);
     return !!match;
-  };
+};
 
 export const toggleAlignment = (editor: Editor, alignment: string) => {
   const isActive = isAlignmentActive(editor, alignment);
@@ -94,4 +94,27 @@ export const unwrapLink = (editor: Editor) => {
   Transforms.unwrapNodes(editor, { match: n => SlateElement.isElement(n) && n.type === 'link' });
 };
 
-export const insertImage = (editor: Editor, url: string) => {}
+export const insertImage = (editor: Editor, url: string) => {
+  const text = { text: '' };
+  const image: SlateElement = { type: 'image', url, children: [text] };
+  Transforms.insertNodes(editor, image);
+};
+
+export const insertVideo = (editor: Editor, url: string) => {
+  const text = { text: '' };
+  const video: SlateElement = { type: 'video', url, children: [text] };
+  Transforms.insertNodes(editor, video);
+};
+
+
+export const isImageUrl = (url: string): Promise<boolean> => {
+  return fetch(url, { method: 'HEAD' })
+    .then(res => res.headers.get('Content-Type')?.startsWith('image') || false)
+    .catch(() => false);
+}
+
+export const isVideoUrl = (url: string): Promise<boolean> => {
+  return fetch(url, { method: 'HEAD' })
+    .then(res => res.headers.get('Content-Type')?.startsWith('video') || false)
+    .catch(() => false);
+}
