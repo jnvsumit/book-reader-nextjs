@@ -1,35 +1,70 @@
 "use client"
-import BookCard from '@/components/BookCard'
-import Header from '@/components/Header'
-import SideBar from '@/components/SideBar'
+import BookCard from '@/components/Book/BookCard'
+import Header from '@/components/Header/Header'
+import Navbar from '@/components/Navbar/Navbar'
 import { motion } from 'framer-motion'
 import styles from './page.module.css'
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-import { IBook } from '@/constants/initiate.state'
-import AddBookCard from '@/components/AddBookCard'
+import AddBookCard from '@/components/Book/AddBookCard'
+import { IBook } from '@/interfaces/book'
+import { getBooks } from '@/apis/book'
+import { INITIAL_PAGE_NUMBER } from '@/constants/initiate.state'
 
 export default function Home() {
   const [books, setBooks] = useState<IBook[]>([]);
+  const [page, setPage] = useState(INITIAL_PAGE_NUMBER);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:5001/api/books').then(data => {
-      setBooks(data.data.books);
-    });
-  }, []);
+    const fetchBooks = async () => {
+      setLoading(true);
 
-  const handleAddBook = () => {
-    
+      const response = await getBooks(page, 2);
+
+      if (response.success) {
+        console.log("Fetching books", page);
+        
+        setBooks(prevBooks => {
+          const books = [...prevBooks, ...response.data.books];
+          const bookIdSet = new Set<string>();
+
+          const _out: IBook[] = [];
+
+          books.forEach(book => {
+            if (!bookIdSet.has(book.bookId)) {
+              _out.push(book);
+            }
+
+            bookIdSet.add(book.bookId);
+          })
+
+          return _out;
+        });
+      }
+      
+      setLoading(false);
+    };
+
+    fetchBooks();
+  }, [page]);
+
+  const handleScroll = () => {
+    if (Math.abs(window.innerHeight + document.documentElement.scrollTop - document.documentElement.offsetHeight) < 1) {
+      setPage(prevPage => prevPage + 1);
+    }
   };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <main className={styles.main}>
       <div>
         <Header/>
         <div className={styles.containerStyle}>
-          <section className={styles.content}>
-            <SideBar/>
-          </section>
+          <Navbar/>
 
           <div className={styles.grouper}>
             <h1 className={styles.title}>ALL BOOKS</h1>
@@ -43,7 +78,7 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   key={i}
                 >
-                  <a href={`/book/${book.bookId}`} style={{ textDecoration: 'none' }}>
+                  <a href={`/book/${book.bookId}/cover`} style={{ textDecoration: 'none' }}>
                     <BookCard title={book.title} coverImage={book.image} description={book.description} />
                   </a>
                 </motion.li>
@@ -57,10 +92,11 @@ export default function Home() {
                 key={books.length}
               >
                 <a href={`/add`} style={{ textDecoration: 'none' }}>
-                  <AddBookCard onClick={handleAddBook} />
+                  <AddBookCard />
                 </a>
               </motion.li>
             </ul>
+            {loading && <p>Loading more books...</p>}
           </div>
         </div>
       </div>

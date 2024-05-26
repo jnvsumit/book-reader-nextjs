@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export default function AddBookCard({ onClick }: { onClick: () => void }) {
+export default function AddBookCard() {
   return (
     <motion.div 
       style={{
@@ -19,8 +19,7 @@ export default function AddBookCard({ onClick }: { onClick: () => void }) {
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-      }} 
-      onClick={onClick}
+      }}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
     >

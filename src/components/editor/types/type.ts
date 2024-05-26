@@ -23,6 +23,8 @@ export type CustomText = {
 
 export type TextFormat = 'bold' | 'italic' | 'underline' | 'color' | 'backgroundColor' | 'fontSize';
 
+export type MediaCallbackProps = (file: File | undefined, cb: (error:any, url: string | null) => void) => void;
+
 declare module 'slate' {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor & HistoryEditor;

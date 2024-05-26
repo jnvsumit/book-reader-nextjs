@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { useSlate } from 'slate-react';
+import { ReactEditor } from 'slate-react';
 import {
   AiOutlinePicture, AiOutlineBold, AiOutlineItalic,
   AiOutlineUnderline, AiOutlineAlignLeft, AiOutlineAlignCenter,
@@ -9,62 +9,32 @@ import {
 import {
   toggleFormat, toggleAlignment, toggleList, insertLink, insertImage,
   insertVideo, toggleTextColor, toggleBackgroundColor, toggleFontSize
-} from './utils/utils';
-import { TextFormat } from './types/type';
-import { uploadMedia } from '@/apis/upload';
+} from '@/components/Editor/utils/utils';
+import { MediaCallbackProps, TextFormat } from '@/components/Editor/types/type';
 import { toast } from 'react-toastify';
-import { Label } from '../Label';
+import { Label } from '../Label/Label';
 import ColorPicker from '../Input/ColorPicker';
 import { Icon } from '../Icons/Icon';
 import Button from '../Input/Botton';
 import Select from '../Input/Select';
+import { BaseEditor } from 'slate';
+import { HistoryEditor } from 'slate-history';
 
-const colorPalette = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FFA500', '#800080', '#00FFFF', '#FFC0CB', '#808080', '#000000'];
+export interface ToolbarComponentProps {
+  onImageAddition: MediaCallbackProps;
+  onVideoAddition: MediaCallbackProps;
+  colorPalette: string[];
+  editor: BaseEditor & ReactEditor & HistoryEditor;
+}
 
-const Toolbar: React.FC = () => {
-  const editor = useSlate();
+const Toolbar: React.FC<ToolbarComponentProps> = ({ onImageAddition, onVideoAddition, colorPalette, editor }) => {
+  
   const [textColor, setTextColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [fontSize, setFontSize] = useState('16px');
 
   const handleMouseDown = (event: React.MouseEvent) => {
     event.preventDefault();
-  };
-
-  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await uploadMedia(formData);
-        const url = response.data.url;
-        insertImage(editor, `http://localhost:5001${url}`);
-        toast.success('Image uploaded successfully');
-      } catch (error) {
-        toast.error('Error uploading image');
-        console.error('Error uploading image:', error);
-      }
-    }
-  };
-
-  const handleVideoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await uploadMedia(formData);
-        const url = response.data.url;
-        insertVideo(editor, `http://localhost:5001${url}`);
-        toast.success('Video uploaded successfully');
-      } catch (error) {
-        toast.error('Error uploading video');
-        console.error('Error uploading video:', error);
-      }
-    }
   };
 
   const handleFormatClick = (format: TextFormat) => {
@@ -99,6 +69,34 @@ const Toolbar: React.FC = () => {
     const size = event.target.value;
     setFontSize(size);
     toggleFontSize(editor, size);
+  };
+
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    onImageAddition(file, (error, url) => {
+      if (error || !url) {
+        toast.error('Error uploading image');
+        console.error('Error uploading image:', error);
+      } else {
+        insertImage(editor, url);
+        toast.success('Image uploaded successfully');
+      }
+    });
+  };
+
+  const handleVideoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    
+    onVideoAddition(file, (error, url) => {
+      if (error || !url) {
+        toast.error('Error uploading video');
+        console.error('Error uploading video:', error);
+      } else {
+        insertVideo(editor, url);
+        toast.success('Video uploaded successfully');
+      }
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import { Editor, Transforms, Text, Range, Element as SlateElement } from 'slate';
-import { TextFormat } from '../types/type';
+import { TextFormat } from '@/components/Editor/types/type';
 
 export const toggleFormat = (editor: Editor, format: TextFormat) => {
     const isActive = isFormatActive(editor, format);

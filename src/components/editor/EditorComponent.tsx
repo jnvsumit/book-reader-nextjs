@@ -2,17 +2,27 @@ import React, { useMemo, useCallback, FC } from 'react';
 import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps } from 'slate-react';
 import { createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
-import { withCustomPlugin } from './plugins/withCustomPlugin';
-import Toolbar from './Toolbar';
-import { CustomElement, CustomText } from '@/components/editor/types/type';
-import { indentList, outdentList } from './utils/utils';
+import { withCustomPlugin } from '@/components/Editor/plugins/withCustomPlugin';
+import { CustomElement, MediaCallbackProps } from '@/components/Editor/types/type';
+import { indentList, outdentList } from '@/components/Editor/utils/utils';
+import { ToolbarComponentProps } from './Toolbar';
 
 interface EditorComponentProps {
   initialValue: Descendant[];
   onChange: (value: Descendant[]) => void;
+  onImageAddition: MediaCallbackProps;
+  onVideoAddition: MediaCallbackProps;
+  toolbar: FC<ToolbarComponentProps>,
+  toolbarColorPalette: string[]
 }
 
-const EditorComponent: FC<EditorComponentProps> = ({ initialValue, onChange }) => {
+const EditorComponent: FC<EditorComponentProps> = ({ 
+  toolbar: Toolbar, 
+  initialValue, onChange,
+  onImageAddition,
+  onVideoAddition,
+  toolbarColorPalette
+}) => {
   const editor = useMemo(() => withCustomPlugin(withHistory(withReact(createEditor()))), []);
 
   const renderElement = useCallback((props: RenderElementProps) => {
@@ -41,7 +51,12 @@ const EditorComponent: FC<EditorComponentProps> = ({ initialValue, onChange }) =
 
   return (
     <Slate editor={editor} initialValue={initialValue} onChange={onChange}>
-      <Toolbar />
+      <Toolbar 
+        onImageAddition={onImageAddition} 
+        onVideoAddition={onVideoAddition} 
+        colorPalette={toolbarColorPalette}
+        editor={editor}
+      />
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}

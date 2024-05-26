@@ -1,12 +1,12 @@
 
-export default function BookCard({title,description,coverImage,onClick}:any) {
+export default function BookCard({ title, description, coverImage, onClick }: any) {
   return (
    <div style={cardStyle} onClick={onClick}>
-<img src={coverImage} alt={title} style={imageStyle}/>
-<div style={contentStyle}>
-<h3 style={titleStyle}>{title}</h3>
-<p style={descriptionStyle}>{description}</p>
-</div>
+    <img src={coverImage} alt={title} style={imageStyle}/>
+    <div style={contentStyle}>
+      <h3 style={titleStyle}>{title}</h3>
+      <p style={descriptionStyle}>{description}</p>
+    </div>
    </div>
   )
 }

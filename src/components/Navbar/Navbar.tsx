@@ -1,10 +1,11 @@
 "use client"
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { motion } from 'framer-motion';
+import { css } from '@emotion/css';
 
 
 
-export default function SideBar() {
+export default function Navbar() {
     const MenuList = [
         {
           title:"Home",
@@ -17,14 +18,6 @@ export default function SideBar() {
         {
           title:"AboutUs",
           icon: <i className="fa fa-info-circle" style={iconStyle}></i>
-        },
-        {
-          title:"Settings",
-          icon: <i className="fa fa-cog" style={iconStyle}></i>
-        },
-        {
-          title:"Contact",
-          icon: <i className="fa fa-home" style={iconStyle}></i>
         },
         {
           title:"RateUs",
@@ -40,7 +33,10 @@ export default function SideBar() {
         }
       ]
   return (
-    <>
+    <section className={css`
+        width:30%;
+      `}
+      >
     {
           MenuList.map((list,i)=> <motion.div key={i}
             transition={{ type: 'spring', damping: 22, mass: 0.99 }}
@@ -60,7 +56,7 @@ export default function SideBar() {
             </motion.div>)
         
     }
-    </>
+    </section>
   )
 }
 

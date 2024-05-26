@@ -1,4 +1,4 @@
-import { config } from '@/constants/server.config';
+import { config } from '@/configs/server.config';
 import axios, { AxiosRequestConfig } from 'axios';
 import { IApiRequest, IApiResponse, IApiResponseError } from '@/interfaces/api';
 

@@ -1,4 +1,4 @@
-import { IBook } from "@/interfaces/book";
+import { IBook, IPage } from "@/interfaces/book";
 
 export const INITIAL_BOOK_STATE: IBook = {
     bookId: '',
@@ -6,5 +6,14 @@ export const INITIAL_BOOK_STATE: IBook = {
     author: '',
     image: '',
     description: '',
+    pages: []
+};
+
+export const INITIAL_PAGE_STATE: IPage = {
+    pageId: '',
+    title: '',
+    bookId: '',
     content: ''
 };
+
+export const INITIAL_PAGE_NUMBER = 1;

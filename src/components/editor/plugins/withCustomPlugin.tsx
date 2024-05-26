@@ -1,4 +1,5 @@
 import { uploadMedia } from '@/apis/upload';
+import { config } from '@/configs/server.config';
 import { Editor, Transforms, Element as SlateElement } from 'slate';
 
 export const withCustomPlugin = (editor: Editor) => {
@@ -19,7 +20,7 @@ export const withCustomPlugin = (editor: Editor) => {
       try {
         const response = await uploadMedia(formData);
         const url = response.data.url;
-        insertImage(editor, `http://localhost:5001${url}`);
+        insertImage(editor, `${config.SERVER_BASE_URL}${url}`);
       } catch (error) {
         console.error('Error uploading image:', error);
       }

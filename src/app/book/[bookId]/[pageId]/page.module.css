@@ -67,4 +67,27 @@
     background: #000;
     color: #fff;
   }
+
+  .bookPage {
+    display: flex;
+  }
+  
+  .content {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: 50px;
+    transition: margin-left 0.3s;
+  }
+  
+  .contentShift {
+    margin-left: 250px;
+  }
+  
+  @media (max-width: 768px) {
+    .contentShift {
+      margin-left: 50px;
+    }
+  }
+  
+  
   
