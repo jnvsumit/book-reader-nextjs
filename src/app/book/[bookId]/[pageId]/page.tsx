@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import { motion } from 'framer-motion'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { css } from '@emotion/css';
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Toolbar from '@/components/Editor/Toolbar';
@@ -36,6 +37,8 @@ const BookPage: React.FC = () => {
   const [editorValue, setEditorValue] = useState<Descendant[]>(INITIAL_EDITOR_STATE);
   const [selectedBook, setSelectedBook] = useState<IBook>(INITIAL_BOOK_STATE);
   const [selectedPage, setSelectedPage] = useState<IPage>(INITIAL_PAGE_STATE);
+  const [newPage, setNewPage] = useState<IPage>(INITIAL_PAGE_STATE);
+  const [addPageToggle, setAddPageToggle] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,37 +48,35 @@ const BookPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (bookId && pageId) {
-      console.log(bookId, pageId);
-      
-      if (pageId === 'cover') {
-        getBookByBookId(bookId).then(response => {
-          console.log(response.data);
-          
-          if (response.success) {
-            setSelectedBook(response.data);
-          } else {
-            console.error('Error fetching book');
-          }
-          setLoading(false);
-        })
-        .catch(error => {
-            console.error('Error fetching book:', error);
-            setLoading(false);
-        });
-      } else if (pageId === 'add-page') {
-        setSelectedBook({...INITIAL_BOOK_STATE, bookId});
-        setSelectedPage(INITIAL_PAGE_STATE);
-        setEditorValue(INITIAL_EDITOR_STATE);
+    if (bookId) {
+      getBookByBookId(bookId).then(response => {
+        if (response.success) {
+          setSelectedBook(response.data);
+        } else {
+          console.error('Error fetching book');
+        }
         setLoading(false);
+      })
+      .catch(error => {
+          console.error('Error fetching book:', error);
+          setLoading(false);
+      });
+    }
+  }, [bookId, pageId])
+
+  useEffect(() => {
+    if (pageId) {
+      console.log("PageId: ", pageId);
+      
+      if (pageId === 'add-page') {
+        setAddPageToggle(true);
+        setEditorValue(INITIAL_EDITOR_STATE);
       } else {
-        console.log(pageId);
-        
+        setAddPageToggle(false);
         getPageByPageId(pageId).then(response => {
-          console.log(response);
-          
           if (response.success) {
-            setSelectedBook({...INITIAL_BOOK_STATE, bookId});
+            console.log(response.data);
+            
             setSelectedPage(response.data);
             setEditorValue(response.data.content ? JSON.parse(response.data.content) : INITIAL_EDITOR_STATE);
           } else {
@@ -89,31 +90,21 @@ const BookPage: React.FC = () => {
         });
       }
     }
-  }, [bookId, pageId]);
-
-  const handleSave = async () => {
-    const content = JSON.stringify(editorValue);
-    const response = await updateBookByBookId(bookId, { content });
-
-    if (response.success) {
-      toast.success(message.book.updated.success, {
-        autoClose: 5000
-      });
-    } else {
-      toast.error(message.book.updated.failed);
-    }
-  }
+  }, [pageId]);
 
   const handleAddPage = async () => {
     const content = JSON.stringify(editorValue);
-    const response = await addPage(bookId, { content, title: 'This is a page' });
+    const response = await addPage(bookId, { content, title: newPage.title });
 
     if (response.success) {
-      toast.success(message.book.updated.success, {
-        autoClose: 5000
+      toast.success(message.page.added.success, {
+        autoClose: 2000,
+        onClose: () => {
+          router.replace(`/book/${bookId}/${response.data.pageId}`);
+        }
       });
     } else {
-      toast.error(message.book.updated.failed);
+      toast.error(message.page.added.failed);
     }
   }
 
@@ -171,44 +162,56 @@ const BookPage: React.FC = () => {
 
   return (
     <div className={styles.bookPage}>
-      <Sidebar pages={selectedBook.pages} isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar book={selectedBook} on={ addPageToggle ? 'add-page' : 'page'} isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className={`${styles.content} ${isSidebarOpen ? styles.contentShift : ''}`}>
-        { pageId === 'cover' ? 
-        <BookCover 
-          title={selectedBook.title} 
-          author={selectedBook.author} 
-          image={selectedBook.image} 
-          description={selectedBook.description} 
-          /> :
-          <motion.div transition={{ type: 'spring', damping: 40, mass: 0.75 }}
-            initial={{ opacity: 0, x: 1000 }} animate={{ opacity: 1, x: 0 }}>
-            <motion.section transition={{ type: 'spring', damping: 44, mass: 0.75 }}
-              initial={{ opacity: 0, y: -1000 }} animate={{ opacity: 1, y: 0 }} className={styles.appBar}>
-              <div className={styles.leftIcons} onClick={handleBack}>
-                <i style={{ fontSize: '20px', cursor: 'pointer' }} className="fas fa-chevron-left"></i>
-              </div>
-              <div className={styles.title}>
-                <h2 className={styles.titleStyles}>{selectedBook.title}</h2>
-              </div>
-              <div className={styles.icons}>
-                <button className={styles.saveButton} onClick={handleAddPage}>Save</button>
-                <i style={iconStyle} className="fas fa-cog"></i>
-                <i style={iconStyle} className="fas fa-share"></i>
-                <i style={iconStyle} className="fas fa-search"></i>
-              </div>
-            </motion.section>
+        <motion.div transition={{ type: 'spring', damping: 40, mass: 0.75 }}
+          initial={{ opacity: 0, x: 1000 }} animate={{ opacity: 1, x: 0 }}>
+          <motion.section transition={{ type: 'spring', damping: 44, mass: 0.75 }}
+            initial={{ opacity: 0, y: -1000 }} animate={{ opacity: 1, y: 0 }} className={styles.appBar}>
+            <div className={styles.leftIcons} onClick={handleBack}>
+              <i style={{ fontSize: '20px', cursor: 'pointer' }} className="fas fa-chevron-left"></i>
+            </div>
+            <div className={styles.title}>
+              { addPageToggle ? 
+              <input
+                placeholder='Enter page title'
+                type="text"
+                value={newPage.title}
+                onChange={(e) => {
+                  setNewPage({ ...newPage, title: e.target.value })
+                }}
+                className={css`
+                  font-size: 1.2em;
+                  margin: 0;
+                  color: #777;
+                  text-align: center;
+                  border: none;
+                  outline: none;
+                  background-color: inherit;
+                `}
+                autoFocus
+              /> :
+                <h2 className={styles.titleStyles}>{selectedPage.title}</h2>
+              }
+            </div>
+            <div className={styles.icons}>
+              <button className={styles.saveButton} onClick={handleAddPage}>Save</button>
+              <i style={iconStyle} className="fas fa-cog"></i>
+              <i style={iconStyle} className="fas fa-share"></i>
+              <i style={iconStyle} className="fas fa-search"></i>
+            </div>
+          </motion.section>
 
-            <EditorComponent
-              toolbarColorPalette={toolbarColorPalette}
-              onImageAddition={handleImageUpload}
-              onVideoAddition={handleVideoUpload}
-              toolbar={Toolbar}
-              initialValue={editorValue} 
-              onChange={onChange}
-            />
-            <ToastContainer />
-          </motion.div>
-        }
+          <EditorComponent
+            toolbarColorPalette={toolbarColorPalette}
+            onImageAddition={handleImageUpload}
+            onVideoAddition={handleVideoUpload}
+            toolbar={Toolbar}
+            initialValue={editorValue} 
+            onChange={onChange}
+          />
+          <ToastContainer />
+        </motion.div>
       </div>
     </div>
   )

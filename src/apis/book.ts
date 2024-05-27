@@ -1,6 +1,6 @@
 import axios from '@/libs/axios';
 import { IApiResponse } from '@/interfaces/api';
-import { IBook, IPageUpdateRequest } from '@/interfaces/book';
+import { IBook, IBookUpdateRequest, IPageUpdateRequest } from '@/interfaces/book';
 
 export const getBooks = async (pageNumber: number, pageSize: number): Promise<IApiResponse> => {
     const response = await axios({
@@ -30,7 +30,7 @@ export const getBookByBookId = async (bookId: string): Promise<IApiResponse> => 
     return response;
 }
 
-export const updateBookByBookId = async (bookId: string, book: IPageUpdateRequest): Promise<IApiResponse> => {
+export const updateBookByBookId = async (bookId: string, book: IBookUpdateRequest): Promise<IApiResponse> => {
     const response = await axios({
         method: 'PUT',
         path: `/api/books/${bookId}`,
